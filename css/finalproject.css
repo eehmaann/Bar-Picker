@@ -1,0 +1,38 @@
+.hidden{
+	display:none;
+}
+.info div {
+	display: inline-block;
+	width: 10em;
+}
+
+.infoHead {
+	font-weight: bold;
+	border-bottom: 1px solid gray;
+	width: 30em;
+}
+.show-class{
+	display: inline;
+}
+.show-textbox{
+	display: block;
+}
+
+#numHint{
+	font-size: 0.8em;
+	color: red;
+}
+.show-num{
+	display:inline;
+}
+.hint{
+	font-size: 0.8em;
+	color:red;
+}
+#doit{
+	background-color:blue;
+	color: white;
+}
+body{
+	background-color: silver;
+	}

@@ -14,16 +14,17 @@ function Bar(barnum, barname, address, city){
 window.addEventListener("load", function() {
     document.getElementById("city").value = "Cambridge";
     var legal = document.getElementById("legalAge");
-    var fullList = document.getElementById("fullList");
-    var addBar = document.getElementById("addBar");
-    var pickBar = document.getElementById("pickBar");
-    var editBar = document.getElementById("editBar");
-    var deleteBar = document.getElementById("deleteBar");
+    var displayBarsButton = document.getElementById("displayBarsButton");
+    var addBarButton = document.getElementById("addBarButton");
+    var pickBarButton = document.getElementById("pickBarButton");
+    var editBarButton = document.getElementById("editBarButton");
+    var deleteBarButton = document.getElementById("deleteBarButton");
     var name = document.getElementById("name");
     var address = document.getElementById("address");
     var city = document.getElementById("city");
     var doIt = document.getElementById("doIt");
     var inform = document.getElementsByClassName("info infoHead");
+    var isBarsDisplayed = false;
     var displayArea=document.getElementById("output");
     var list=document.getElementById("thelist");
     var randomBar=document.getElementById("randbar");
@@ -41,11 +42,13 @@ window.addEventListener("load", function() {
             if( legal.checked) {
             // if the user claims to be a legal age, show the buttons
                 showButtons();
+                createBarList();
             }
 
             else {
             // hide the functionality of the program
-                hideButtons();               
+                hideButtons();
+                hideBars();               
             }            
         }, false)
     }
@@ -55,97 +58,34 @@ window.addEventListener("load", function() {
 		setList();
 	} 
    	
-    // This function makes the text boxes change so that the user is editing the text directly, rather than writing anew
-    selectionNumber.addEventListener('keyup', function() {
-        barListNumber=selectionNumber.value-1;
-         barKey = JSON.parse(window.localStorage.getItem("barKey"));
-        if(barKey[barListNumber].barname){
-        name.value=barKey[barListNumber].barname;
-        address.value=barKey[barListNumber].address;
-        city.value=barKey[barListNumber].city;
-        }
-    }, false );
-    
-    //clear the display section
-    function clearDisplay() {
-	 while (list.firstChild) {
-                list.removeChild(list.firstChild);
-            }
-    }   
-
-	// Displays a randomly chosen bar 
-	function doPick() {
-	 // if a current bar was picked, it will delete that bar from the field
-        if (randomBar.firstChild) {
-            randomBar.removeChild(randomBar.firstChild);
-        }   
-
-        barKey = JSON.parse(window.localStorage.getItem("barKey"));
-        // pick a random number based on list of array
-        var thepick= Math.floor(Math.random() * (barKey.length));
-        // create Dom element fo random bar to be placed in
-        var newDiv = document.createElement("div");
-        newDiv.setAttribute("class", "info");
-        var text=document.createTextNode("This is the bar you want:  "+barKey[thepick].barname+ " " + barKey[thepick].address + " " + barKey[thepick].city);
-        // place text
-        newDiv.appendChild(text);
-        //place div
-        randomBar.appendChild(newDiv);            
-    }
 	
 	// Create a bar list with three bars
 	function setList() {
         var druid = new Bar(0, "The Druid", "1357 Cambridge St.", "Cambridge");
-        barList.push(druid);
         var grendal = new Bar(1, "Grendal's Den", "89 Winthrop St.", "Cambridge");
-        barList.push(grendal)
         var charlie = new Bar (2, "Charlie's Kitchen", "10 Eliot St.", "Cambridge");
-        barList.push(charlie);
+        barList.push(druid, grendal, charlie);
         window.localStorage.setItem("barKey", JSON.stringify(barList));
    }
-	// creates elements in the Dom to display information about the bars
-    function showBarRow(dataObject, element) {
-        var newDiv = document.createElement("div");
-        newDiv.setAttribute("class", "info");
-        list.appendChild(newDiv);
-        
-        if (dataObject.barnum !== 'undefined') {
-            var numDiv = document.createElement("div");
-            text =document.createTextNode(dataObject.barnum);
-            numDiv.appendChild(text);
-            newDiv.appendChild(numDiv);            
-        }
 
-        if (dataObject.barname !== 'undefined') {
-            var nameDiv = document.createElement("div");
-            text =document.createTextNode(dataObject.barname);
-            nameDiv.appendChild(text);
-            newDiv.appendChild(nameDiv);            
-        }
-
-
-        if (dataObject.address !== 'undefined') {
-            var addressDiv = document.createElement("div");
-            text =document.createTextNode(dataObject.address);
-            addressDiv.appendChild(text);
-            newDiv.appendChild(addressDiv);            
-        }
-
-        if (dataObject.city !== 'undefined') {
-            var cityDiv = document.createElement("div");
-            text =document.createTextNode(dataObject.city);
-            cityDiv.appendChild(text);
-            newDiv.appendChild(cityDiv);            
-        }
-    }        
    
 
-    if(fullList) {
-        fullList.addEventListener("click", function() {
-         	clearDisplay();  
-            addInformClassName();
-            createBarList();
+    if(displayBarsButton) {
+        displayBarsButton.addEventListener("click", function() {
+            if(!isBarsDisplayed){
+                displayBars();
+            }
+            else{
+               hideBars();
+           }
         }, false)
+    }
+
+    function displayBars(){
+        clearDisplay();  
+        addInformClassName();
+        showBarList();
+        isBarsDisplayed=true;
     }
 
     function addInformClassName(){
@@ -162,29 +102,81 @@ window.addEventListener("load", function() {
             for(var i =0; i< barKey.length; i++){
                 var savedBar= new Bar (i+1, barKey[i].barname, barKey[i].address, barKey[i].city, barKey[i].barstate);
                 barList.push(savedBar);
+                //showBarRow(savedBar, thelist);
+            }
+        }
+    }
+    function hideBars(){
+        clearDisplay();
+        isBarsDisplayed=false;
+    }
+    function clearDisplay() {
+     while (list.firstChild) {
+                list.removeChild(list.firstChild);
+            }
+    }   
+
+
+    function showBarList(){
+        if(window.localStorage.getItem("barKey")) {
+            var barKey = JSON.parse(window.localStorage.getItem("barKey"));
+            for(var i =0; i< barKey.length; i++){
+                var savedBar= new Bar (i+1, barKey[i].barname, barKey[i].address, barKey[i].city, barKey[i].barstate);
                 showBarRow(savedBar, thelist);
             }
         }
     }
 
-    if(addBar) {
-        addBar.addEventListener("click", function() {
+    // creates elements in the Dom to display information about the bars
+    function showBarRow(dataObject, element) {
+        var newDiv = document.createElement("div");
+        newDiv.setAttribute("class", "info");
+        list.appendChild(newDiv);
+
+        if (dataObject.barnum !== 'undefined') {
+            showBarAttribute(dataObject.barnum);        
+        }
+
+
+        if (dataObject.barname !== 'undefined') {
+             showBarAttribute(dataObject.barname);      
+        }
+
+
+        if (dataObject.address !== 'undefined') {
+            showBarAttribute(dataObject.address); 
+        }
+
+        if (dataObject.city !== 'undefined') {
+             showBarAttribute(dataObject.city);            
+        }
+
+        function showBarAttribute(attribute) {
+            var attributeDiv = document.createElement("div");
+            text =document.createTextNode(attribute);
+            attributeDiv.appendChild(text);
+            newDiv.appendChild(attributeDiv);    
+        }
+    }
+
+    if(addBarButton) {
+        addBarButton.addEventListener("click", function() {
             doWhat="addabar";
             showAdd();
             removeEdit();
         }, false)
     }
 
-    if(editBar) {
-        editBar.addEventListener("click", function() {
+    if(editBarButton) {
+        editBarButton.addEventListener("click", function() {
             doWhat="editabar";
             showNumberTextBox()
             showAdd();
         }, false)
     }
 
-    if(deleteBar) {
-        deleteBar.addEventListener("click", function() {
+    if(deleteBarButton) {
+        deleteBarButton.addEventListener("click", function() {
             doWhat="deleteabar";
             showNumberTextBox()
             removeAdd();
@@ -192,14 +184,25 @@ window.addEventListener("load", function() {
         }, false)
     }
 
-    if(pickBar) {
-        pickBar.addEventListener("click", function() {
-            doWhat="pickBar"
+    if(pickBarButton) {
+        pickBarButton.addEventListener("click", function() {
+            doWhat="pickBarButton"
             doPick();
             removeAdd();
             removeEdit();
         }, false)
     }
+
+        // This function makes the text boxes change so that the user is editing the text directly, rather than writing anew
+    selectionNumber.addEventListener('keyup', function() {
+        barListNumber=selectionNumber.value-1;
+         barKey = JSON.parse(window.localStorage.getItem("barKey"));
+        if(barKey[barListNumber].barname){
+        name.value=barKey[barListNumber].barname;
+        address.value=barKey[barListNumber].address;
+        city.value=barKey[barListNumber].city;
+        }
+    }, false );
 
     if(doIt) {
         doIt.addEventListener("click", function() {
@@ -212,6 +215,7 @@ window.addEventListener("load", function() {
             // checks to make sure all the information is set
                if ( regName.test(barname) && regAddress.test(baraddress) && regCity.test(barcity)) {
                 	var barnum = JSON.parse(window.localStorage.getItem("barKey")).length+1;
+                    alert(barnum);
                 	var pub = new Bar(barnum, barname, baraddress, barcity);
                 	barList.push(pub);
                 	showBarRow(pub, output);
@@ -222,12 +226,31 @@ window.addEventListener("load", function() {
                 	alert("You have left some needed information out.  Please complete");
             	}
             }
-            
-            if(doWhat=="pickBar") {
-            	doPick();
+
+            else if(doWhat=="editabar") {
+            // check to make sure all fields have information before changing to avoid
+            //empty or undefined areas
+                if(regAddress.test(baraddress) && regCity.test(barcity) && regName.test(barname) && regNum.test(barListNumber)) {
+                    if(window.localStorage.getItem("barKey")) {
+                        clearDisplay();
+                        var barKey = JSON.parse(window.localStorage.getItem("barKey"));
+                        barList=[];
+                        for(var i =0; i< barKey.length; i++) {
+                            if(i!=barListNumber-1) {
+                                var savedBar= new Bar (i+1, barKey[i].barname,barKey[i].address,barKey[i].city);                                
+                            }
+                            else {
+                                savedBar= new Bar(barListNumber, barname, baraddress, barcity);
+                            }
+                        barList.push(savedBar);
+                        showBarRow(savedBar, thelist);
+                        window.localStorage.setItem("barKey", JSON.stringify(barList));
+                        }
+                    }
+                }
             }
 
-            if(doWhat=="deleteabar") {
+            else if(doWhat=="deleteabar") {
             // makes sure that the user typed a number
             	var didDelete = false;
             	if(regNum.test(barListNumber)) {
@@ -262,27 +285,8 @@ window.addEventListener("load", function() {
             	}
             }
 
-            if(doWhat=="editabar") {
-            // check to make sure all fields have information before changing to avoid
-            //empty or undefined areas
-            	if(regAddress.test(baraddress) && regCity.test(barcity) && regName.test(barname) && regNum.test(barListNumber)) {
-                 	if(window.localStorage.getItem("barKey")) {
-                 		clearDisplay();
-                     	var barKey = JSON.parse(window.localStorage.getItem("barKey"));
-                      	barList=[];
-                    	for(var i =0; i< barKey.length; i++) {
-                        	if(i!=barListNumber-1) {
-                            	var savedBar= new Bar (i+1, barKey[i].barname,barKey[i].address,barKey[i].city);                                
-                        	}
-                        	else {
-                            	savedBar= new Bar(barListNumber, barname, baraddress, barcity);
-                        	}
-                        barList.push(savedBar);
-                        showBarRow(savedBar, thelist);
-                        window.localStorage.setItem("barKey", JSON.stringify(barList));
-                    	}
-                    }
-                }
+            else {
+                doPick();
             }
             // reset all textboxes
         	selectionNumber.value="";
@@ -295,23 +299,50 @@ window.addEventListener("load", function() {
         		alert("You deleted too many bars.  That's ok.  I'll give you three to choose from.");
         	}
         }, false)
+        // Displays a randomly chosen bar 
+    function doPick() {
+     // if a current bar was picked, it will delete that bar from the field
+        if (randomBar.firstChild) {
+            randomBar.removeChild(randomBar.firstChild);
+        }   
+        displayPick();
+          
+    }
+    function displayPick() {
+        var newDiv = document.createElement("div");
+        newDiv.setAttribute("class", "info");
+        var text=document.createTextNode(pickRandomBar());
+        newDiv.appendChild(text);
+        randomBar.appendChild(newDiv);         
+    }
+
+    function pickRandomBar() {
+        barKey = JSON.parse(window.localStorage.getItem("barKey"));
+        // pick a random number based on list of array
+        var thepick= Math.floor(Math.random() * (barKey.length));
+        var pickedName = barKey[thepick].barname;
+        var pickedAddress = barKey[thepick].address;
+        var pickedCity = barKey[thepick].city;
+        return ("This is the bar you want:  "+ pickedName + " " +pickedAddress+ " " +pickedCity );
+    }
 
     }
     function showButtons() {
-        pickBar.style.display ="inline";
-        fullList.style.display = "inline";
-        addBar.style.display="inline";
-        editBar.style.display="inline";
-        deleteBar.style.display="inline";
+        pickBarButton.style.display ="inline";
+        displayBarsButton.style.display = "inline";
+        addBarButton.style.display="inline";
+        editBarButton.style.display="inline";
+        deleteBarButton.style.display="inline";
         doIt.style.display="block";
     }
 
     function hideButtons() {
-         pickBar.style.display = "none";
-                fullList.style.display="none";
-                addBar.style.display="none";
-                editBar.style.display="none";
-                deleteBar.style.display="none";
+         pickBarButton.style.display = "none";
+                displayBarsButton.style.display="none";
+                addBarButton.style.display="none";
+                editBarButton.style.display="none";
+                deleteBarButton.style.display="none";
+                doIt.style.display="none";
                 removeEdit();
                 removeAdd();
                 clearDisplay();

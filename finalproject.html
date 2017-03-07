@@ -7,28 +7,38 @@
   </head>
   <body class="hw">
 
-<h1>Harvard Square Random Bar Picker</h1>
-<p>We know that one of the hardest things to do, while in the Harvard area is to pick the bar that you want to go to.  There are so many good places like Grendal's Den and Charlie's Kitchen.  It doesn't really matter which one you choose because they are all good, so you would happy just picking one at random.  This is what we have designed to help you do.  </p>
+    <h1>Harvard Square Random Bar Picker</h1>
+    <p>We know that one of the hardest things to do, while in the Harvard area is to pick the bar that you want to go to.  There are so many good places like Grendal's Den and Charlie's Kitchen.  It doesn't really matter which one you choose because they are all good, so you would happy just picking one at random.  This is what we have designed to help you do.  </p>
     <input type="checkbox" id="legalAge" name="legalAge" value="Yes"> I am at least 21 years old<br>
-    <button id="pickBar" class="hidden"> Random pick</button>
-    <button id="fullList" class= "hidden"> Display bars</button>
-    <button id="addBar" class="hidden">Add a bar</button>
-    <button id="editBar" class="hidden"> Edit a bar location</button>
-     <button id="deleteBar" class="hidden"> Delete a closed bar</button>
+    
+    <button id="pickBarButton" class="hidden"> Random pick</button>
+    <button id="displayBarsButton" class= "hidden"> Display bars</button>
+    <button id="addBarButton" class="hidden">Add a bar</button>
+    <button id="editBarButton" class="hidden"> Edit a bar location</button>
+     <button id="deleteBarButton" class="hidden"> Delete a closed bar</button>
      <br>
-    <label for="selectionNumber" class="hidden edit">Type the Bar Number you would like to edit</label><input type="text" size="4" id="selectionNumber" class="hidden edit">
-    <br>
+    
+    <label for="selectionNumber" class="hidden edit">Type the Bar Number you would like to edit</label>
+    <input type="text" size="4" id="selectionNumber" class="hidden edit"><br>
+
     <p id="numHint" class="hidden edit">ex. 7</p>
-	<label for="name" class="hidden add">Bar Name</label><input type="text" size="40" id="name" class="hidden add">
-	<p id="nameHint" class="hidden hint">ex. The Birdleaf</p>
-	<label for="address" class="hidden add">Address</label><input type="text" size="40" id="address" class="hidden add">
-	<p id="addressHint" class="hidden hint">ex. 78 Main Street</p>
-	<label for="City" class="hidden add">City</label><input type="text" size="40" id="city" class="hidden add"><br>
-	<button id="doIt" class="hidden"> Process</button>
-   <div id="output">
-   <div id="randbar"></div>
-    <div class="hidden info infoHead" id=""><div>Bar Number</div><div>Name</div><div>Address</div><div>City</div></div>
-        <div id="thelist"> </div>
-        </div>
-	</body>
+	   <label for="name" class="hidden add">Bar Name</label><input type="text" size="40" id="name" class="hidden add">
+	   <p id="nameHint" class="hidden hint">ex. The Birdleaf</p>
+	   <label for="address" class="hidden add">Address</label><input type="text" size="40" id="address" class="hidden add">
+	   <p id="addressHint" class="hidden hint">ex. 78 Main Street</p>
+	   <label for="City" class="hidden add">City</label><input type="text" size="40" id="city" class="hidden add"><br>
+	   <button id="doIt" class="hidden"> Process</button>
+    
+    <div id="output">
+      <div id="randbar"></div>
+      <div class="hidden info infoHead" id="">
+        <div>Bar Number</div>
+        <div>Name</div>
+        <div>Address</div>
+        <div>City</div>
+      </div>
+      <div id="thelist"> </div>
+    </div>
+	
+  </body>
 </html>

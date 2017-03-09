@@ -4,12 +4,12 @@ var edit = document.getElementsByClassName("edit");
 var doWhat;
 var barList=[];
 
-function Bar(barnum, barname, address, city){
-        this.barnum=barnum;
-        this.barname=barname;
-        this.address=address;
-        this.city=city;
-  }
+function Bar(barNumber, barname, address, city) {
+    this.barNumber=barNumber;
+    this.barname=barname;
+    this.address=address;
+    this.city=city;
+}
 
 window.addEventListener("load", function() {
     document.getElementById("city").value = "Cambridge";
@@ -23,16 +23,10 @@ window.addEventListener("load", function() {
     var address = document.getElementById("address");
     var city = document.getElementById("city");
     var doIt = document.getElementById("doIt");
-    var inform = document.getElementsByClassName("info infoHead");
     var isBarsDisplayed = false;
-    var displayArea=document.getElementById("output");
     var list=document.getElementById("thelist");
     var randomBar=document.getElementById("randbar");
     var selectionNumber=document.getElementById("selectionNumber");
-    var regName= /^[a-z]|[A-Z]/;
-    var regNum= /^\d/;
-    var regAddress =/^\d ?=[a-z]|[A-Z]/;
-    var regCity=/^[a-z]|[A-Z]/;
 
         // when loading the check box will be unchecked
     legal.checked=false;
@@ -72,7 +66,7 @@ window.addEventListener("load", function() {
 
     if(displayBarsButton) {
         displayBarsButton.addEventListener("click", function() {
-            if(!isBarsDisplayed){
+            if(!isBarsDisplayed) {
                 displayBars();
             }
             else{
@@ -81,14 +75,15 @@ window.addEventListener("load", function() {
         }, false)
     }
 
-    function displayBars(){
+    function displayBars() {
         clearDisplay();  
         addInformClassName();
         showBarList();
         isBarsDisplayed=true;
     }
 
-    function addInformClassName(){
+    function addInformClassName() {
+          var inform = document.getElementsByClassName("info infoHead");
            for (var i in inform) {
                 if (inform.hasOwnProperty(i)) {
                         inform[i].className = 'info infoHead show-class';
@@ -96,17 +91,15 @@ window.addEventListener("load", function() {
             }
     }
 
-    function createBarList(){
+    function createBarList() {
         if(window.localStorage.getItem("barKey")) {
             var barKey = JSON.parse(window.localStorage.getItem("barKey"));
-            for(var i =0; i< barKey.length; i++){
-                var savedBar= new Bar (i+1, barKey[i].barname, barKey[i].address, barKey[i].city, barKey[i].barstate);
-                barList.push(savedBar);
-                //showBarRow(savedBar, thelist);
+            for(var i =0; i< barKey.length; i++) {
+                barList.push(getSavedBar(barKey, i+1, i));
             }
         }
     }
-    function hideBars(){
+    function hideBars() {
         clearDisplay();
         isBarsDisplayed=false;
     }
@@ -117,45 +110,12 @@ window.addEventListener("load", function() {
     }   
 
 
-    function showBarList(){
+    function showBarList() {
         if(window.localStorage.getItem("barKey")) {
             var barKey = JSON.parse(window.localStorage.getItem("barKey"));
-            for(var i =0; i< barKey.length; i++){
-                var savedBar= new Bar (i+1, barKey[i].barname, barKey[i].address, barKey[i].city, barKey[i].barstate);
-                showBarRow(savedBar, thelist);
+            for(var i =0; i< barKey.length; i++) {
+                showBarRow(getSavedBar(barKey, i+1, i), thelist);
             }
-        }
-    }
-
-    // creates elements in the Dom to display information about the bars
-    function showBarRow(dataObject, element) {
-        var newDiv = document.createElement("div");
-        newDiv.setAttribute("class", "info");
-        list.appendChild(newDiv);
-
-        if (dataObject.barnum !== 'undefined') {
-            showBarAttribute(dataObject.barnum);        
-        }
-
-
-        if (dataObject.barname !== 'undefined') {
-             showBarAttribute(dataObject.barname);      
-        }
-
-
-        if (dataObject.address !== 'undefined') {
-            showBarAttribute(dataObject.address); 
-        }
-
-        if (dataObject.city !== 'undefined') {
-             showBarAttribute(dataObject.city);            
-        }
-
-        function showBarAttribute(attribute) {
-            var attributeDiv = document.createElement("div");
-            text =document.createTextNode(attribute);
-            attributeDiv.appendChild(text);
-            newDiv.appendChild(attributeDiv);    
         }
     }
 
@@ -197,7 +157,7 @@ window.addEventListener("load", function() {
     selectionNumber.addEventListener('keyup', function() {
         barListNumber=selectionNumber.value-1;
          barKey = JSON.parse(window.localStorage.getItem("barKey"));
-        if(barKey[barListNumber].barname){
+        if(barKey[barListNumber].barname) {
         name.value=barKey[barListNumber].barname;
         address.value=barKey[barListNumber].address;
         city.value=barKey[barListNumber].city;
@@ -205,21 +165,22 @@ window.addEventListener("load", function() {
     }, false );
 
     if(doIt) {
+        var regName= /^[a-z]|[A-Z]/;
+        var regNum= /^\d/;
+        var regAddress =/^\d ?=[a-z]|[A-Z]/;
+        var regCity=/^[a-z]|[A-Z]/;
+        
         doIt.addEventListener("click", function() {
-                var barname = name.value;
-                var baraddress = address.value;
-                var barcity = city.value;
-                var barListNumber=selectionNumber.value;    
+            var barname = name.value;
+            var baraddress = address.value;
+            var barcity = city.value;
+            var barListNumber=selectionNumber.value;
+
 
             if(doWhat=="addabar") {
             // checks to make sure all the information is set
-               if ( regName.test(barname) && regAddress.test(baraddress) && regCity.test(barcity)) {
-                	var barnum = JSON.parse(window.localStorage.getItem("barKey")).length+1;
-                    alert(barnum);
-                	var pub = new Bar(barnum, barname, baraddress, barcity);
-                	barList.push(pub);
-                	showBarRow(pub, output);
-                	window.localStorage.setItem("barKey", JSON.stringify(barList));
+               if (checkAdd()) {
+                    addBar();
                 }
 
                 else {
@@ -230,56 +191,18 @@ window.addEventListener("load", function() {
             else if(doWhat=="editabar") {
             // check to make sure all fields have information before changing to avoid
             //empty or undefined areas
-                if(regAddress.test(baraddress) && regCity.test(barcity) && regName.test(barname) && regNum.test(barListNumber)) {
-                    if(window.localStorage.getItem("barKey")) {
-                        clearDisplay();
-                        var barKey = JSON.parse(window.localStorage.getItem("barKey"));
-                        barList=[];
-                        for(var i =0; i< barKey.length; i++) {
-                            if(i!=barListNumber-1) {
-                                var savedBar= new Bar (i+1, barKey[i].barname,barKey[i].address,barKey[i].city);                                
-                            }
-                            else {
-                                savedBar= new Bar(barListNumber, barname, baraddress, barcity);
-                            }
-                        barList.push(savedBar);
-                        showBarRow(savedBar, thelist);
-                        window.localStorage.setItem("barKey", JSON.stringify(barList));
-                        }
-                    }
+               if(checkEdit()) {
+                    editBar();   
+                }
+                else {
+                    alert("You have left out some needed information.")
                 }
             }
 
             else if(doWhat=="deleteabar") {
-            // makes sure that the user typed a number
-            	var didDelete = false;
             	if(regNum.test(barListNumber)) {
-                 	if(window.localStorage.getItem("barKey")) {
-                 		clearDisplay();
-                     	var barKey = JSON.parse(window.localStorage.getItem("barKey"));
-                      	barList=[];
-                    	for(var i =0; i< barKey.length; i++) {
-                        	if(i!=barListNumber-1) {
-                        		if(didDelete == false) {
-                            		var savedBar= new Bar (i+1, barKey[i].barname,barKey[i].address,barKey[i].city, barKey[i].barstate);
-                            	}
-                            
-                            	else {
-                            		savedBar= new Bar (i, barKey[i].barname,barKey[i].address,barKey[i].city, barKey[i].barstate);
-                            	}
-
-                            	barList.push(savedBar);
-                            	showBarRow(savedBar, thelist);
-                            	window.localStorage.setItem("barKey", JSON.stringify(barList));
-                        	}
-                        
-                        	else {
-                        		didDelete = true;
-                        	}
-                    	}
-                	}
-            	}
-            	
+                    deleteBar();
+                }            
             	else {
             		alert("You must type the number of the bar to be deleted in the box");
             	}
@@ -298,7 +221,81 @@ window.addEventListener("load", function() {
         		setList();
         		alert("You deleted too many bars.  That's ok.  I'll give you three to choose from.");
         	}
+            function checkAdd() {
+                if (!(regName.test(barname))) {
+                    return false;
+                }
+                else if(!(regAddress.test(baraddress))) {
+                    return false;
+                }
+                else if (!(regCity.test(barcity))) {
+                    return false;
+                }
+                else{
+                    return true;
+                }
+            }
+            function addBar() {
+                var barNumber = JSON.parse(window.localStorage.getItem("barKey")).length+1;
+                alert(barNumber);
+                var pub = new Bar(barNumber, barname, baraddress, barcity);
+                barList.push(pub);
+                showBarRow(pub, output);
+                window.localStorage.setItem("barKey", JSON.stringify(barList));
+            }
+            function clearList() {
+                clearDisplay();
+                var barKey = JSON.parse(window.localStorage.getItem("barKey"));
+                barList=[];
+                return barKey;
+            }
+
+            function deleteBar() {
+                if(window.localStorage.getItem("barKey")) {
+                    var barKey=clearList();
+                    for(var i =0; i< barKey.length; i++) { 
+                        if(i<barListNumber-1) {
+                            writeSavedBar(getSavedBar(barKey, i+1, i));            
+                        }
+                        
+                        else if(i>=barListNumber){
+                                writeSavedBar(getSavedBar(barKey, i, i));
+                        }
+                    }
+                    }
+                }
+            function checkEdit() {
+                if(!(regAddress.test(baraddress))) {
+                    return false;
+                }
+                else if(!(regCity.test(barcity))) {
+                    return false;
+                }
+                else if(!(regName.test(barname))) {
+                    return false;
+                }
+                else if(!(regNum.test(barListNumber))) {
+                    return false;
+                }
+                else return true;
+            }
+            function editBar() {
+                if(window.localStorage.getItem("barKey")) {
+                    var barKey=clearList();
+                    for(var i =0; i< barKey.length; i++) {
+                        if(i==barListNumber-1) {
+                            savedBar= new Bar(barListNumber, barname, baraddress, barcity);
+                            writeSavedBar(savedBar);                      
+                        }
+                        else {
+                            
+                            writeSavedBar(getSavedBar(barKey, i+1, i));       
+                        }
+                    }
+                }
+            }
         }, false)
+
         // Displays a randomly chosen bar 
     function doPick() {
      // if a current bar was picked, it will delete that bar from the field
@@ -337,16 +334,52 @@ window.addEventListener("load", function() {
     }
 
     function hideButtons() {
-         pickBarButton.style.display = "none";
-                displayBarsButton.style.display="none";
-                addBarButton.style.display="none";
-                editBarButton.style.display="none";
-                deleteBarButton.style.display="none";
-                doIt.style.display="none";
-                removeEdit();
-                removeAdd();
-                clearDisplay();
+        pickBarButton.style.display = "none";
+        displayBarsButton.style.display="none";
+        addBarButton.style.display="none";
+        editBarButton.style.display="none";
+        deleteBarButton.style.display="none";
+        doIt.style.display="none";
+        removeEdit();
+        removeAdd();
+        clearDisplay();
     }
+    function getSavedBar(barKey, number, id) {
+    var savedBar= new Bar (number, barKey[id].barname, barKey[id].address, barKey[id].city);
+    return savedBar;
+}
+
+function writeSavedBar(savedBar) {
+    barList.push(savedBar);
+    showBarRow(savedBar, thelist);
+    window.localStorage.setItem("barKey", JSON.stringify(barList));
+}          
+// creates elements in the Dom to display information about the bars
+function showBarRow(dataObject, element) {
+    var newDiv = document.createElement("div");
+    newDiv.setAttribute("class", "info");
+    list.appendChild(newDiv);
+
+    if (dataObject.barNumber !== 'undefined') {
+        showBarAttribute(dataObject.barNumber);        
+    }
+    if (dataObject.barname !== 'undefined') {
+        showBarAttribute(dataObject.barname);      
+    }
+    if (dataObject.address !== 'undefined') {
+        showBarAttribute(dataObject.address); 
+     }
+    if (dataObject.city !== 'undefined') {
+        showBarAttribute(dataObject.city);            
+    }
+
+     function showBarAttribute(attribute) {
+        var attributeDiv = document.createElement("div");
+        text =document.createTextNode(attribute);
+        attributeDiv.appendChild(text);
+        newDiv.appendChild(attributeDiv);    
+    }
+}
 })
 // add the elements that would be needed for adding
 function showAdd() {
@@ -389,5 +422,5 @@ function removeEdit() {
         if (edit.hasOwnProperty(i)) {
             edit[i].className= "edit hidden";
         }
-    }          
+    }
 }
